@@ -8,15 +8,15 @@ const {
   updateContact,
 } = require("../../models/contacts");
 
-const { checkContact } = require("../../middlewares");
+const { checkContact, checkBody } = require("../../middlewares");
 
 const router = Router();
 
 router.get("/", listContacts);
-router.post("/", addContact);
+router.post("/", checkBody, addContact);
 
 router.get("/:contactId", checkContact, getById);
 router.delete("/:contactId", checkContact, removeContact);
-router.put("/:contactId", checkContact, updateContact);
+router.put("/:contactId", checkBody, checkContact, updateContact);
 
 module.exports = router;

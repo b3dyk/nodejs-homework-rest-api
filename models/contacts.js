@@ -51,7 +51,7 @@ const addContact = catchAsync(async (req, res, next) => {
     return next(
       new AppError(
         400,
-        `missing required ${validation.error.details[0].context?.key} field`
+        `invalid ${validation.error.details[0].context?.key} field`
       )
     );
   }
@@ -65,6 +65,7 @@ const addContact = catchAsync(async (req, res, next) => {
 });
 
 const updateContact = catchAsync(async (req, res, next) => {
+  console.log(req.body);
   const { name, email, phone } = req.body;
   const { contactId } = req.params;
   const { contacts } = req;
@@ -79,7 +80,12 @@ const updateContact = catchAsync(async (req, res, next) => {
   const validation = contactValidator(updatedContact);
 
   if (validation.error) {
-    return next(new AppError(400, "missing fields"));
+    return next(
+      new AppError(
+        400,
+        `invalid ${validation.error.details[0].context?.key} field`
+      )
+    );
   }
 
   const idx = contacts.findIndex((contact) => contact.id === contactId);
