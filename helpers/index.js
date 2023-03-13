@@ -1,5 +1,11 @@
-import { getData } from "./getData";
+const AppError = require("./appError");
+const catchAsync = require("./catchAsync");
+const contactsPath = require("./contactsPath");
+const contactValidator = require("./contactValidator");
 
-exports.module = {
-  getData,
+module.exports = {
+  AppError,
+  catchAsync,
+  contactsPath,
+  contactValidator,
 };

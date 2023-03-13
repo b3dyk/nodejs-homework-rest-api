@@ -1,125 +1,95 @@
 const fsPromises = require("fs").promises;
-const path = require("path");
 const uuid = require("uuid").v4;
 
-const contactsPath = path.join(__dirname, "../models", "./contacts.json");
+const {
+  catchAsync,
+  contactsPath,
+  contactValidator,
+  AppError,
+} = require("../helpers");
 
 const listContacts = async (req, res) => {
-  try {
-    const contacts = JSON.parse(
-      await fsPromises.readFile(contactsPath, "utf-8")
-    );
+  const contacts = JSON.parse(await fsPromises.readFile(contactsPath, "utf-8"));
 
-    res.status(200).json(contacts);
-  } catch (error) {
-    console.log(error);
-  }
+  res.status(200).json(contacts);
 };
 
-const getById = async (req, res) => {
-  try {
-    const { contactId } = req.params;
+const getById = (req, res) => {
+  const { contact } = req;
 
-    const contacts = JSON.parse(
-      await fsPromises.readFile(contactsPath, "utf-8")
-    );
-
-    const searchedContact = contacts.find(
-      (contact) => contact.id === contactId
-    );
-
-    if (!searchedContact) return res.status(404).json({ message: "Not found" });
-
-    res.status(200).json(searchedContact);
-  } catch (error) {
-    console.log(error);
-  }
+  res.status(200).json(contact);
 };
 
-const removeContact = async (req, res) => {
-  try {
-    const { contactId } = req.params;
+const removeContact = catchAsync(async (req, res) => {
+  const {
+    contacts,
+    params: { contactId },
+  } = req;
 
-    const contacts = JSON.parse(
-      await fsPromises.readFile(contactsPath, "utf-8")
+  const updatedList = JSON.stringify(
+    contacts.filter((contact) => contact.id !== contactId)
+  );
+
+  await fsPromises.writeFile(contactsPath, updatedList);
+
+  res.status(200).json({ message: "contact deleted" });
+});
+
+const addContact = catchAsync(async (req, res, next) => {
+  const { name, email, phone } = req.body;
+
+  const newUser = {
+    id: uuid(),
+    name,
+    email,
+    phone,
+  };
+
+  const validation = contactValidator(newUser);
+
+  if (validation.error) {
+    return next(
+      new AppError(
+        400,
+        `missing required ${validation.error.details[0].context?.key} field`
+      )
     );
-
-    const searchedContact = contacts.find(
-      (contact) => contact.id === contactId
-    );
-
-    if (!searchedContact) return res.status(404).json({ message: "Not found" });
-
-    const newList = JSON.stringify(
-      contacts.filter((contact) => contact.id !== contactId)
-    );
-
-    await fsPromises.writeFile(contactsPath, newList);
-
-    res.status(200).json({ message: "contact deleted" });
-  } catch (error) {
-    console.log(error);
   }
-};
 
-const addContact = async (req, res) => {
-  try {
-    const { name, email, phone } = req.body;
+  const contacts = JSON.parse(await fsPromises.readFile(contactsPath, "utf-8"));
+  const updatedContacts = JSON.stringify([...contacts, newUser]);
 
-    const contacts = JSON.parse(
-      await fsPromises.readFile(contactsPath, "utf-8")
-    );
+  await fsPromises.writeFile(contactsPath, updatedContacts);
 
-    const newUser = {
-      id: uuid(),
-      name,
-      email,
-      phone,
-    };
+  res.status(201).json(newUser);
+});
 
-    const updatedContacts = JSON.stringify([...contacts, newUser]);
+const updateContact = catchAsync(async (req, res, next) => {
+  const { name, email, phone } = req.body;
+  const { contactId } = req.params;
+  const { contacts } = req;
 
-    await fsPromises.writeFile(contactsPath, updatedContacts);
+  const updatedContact = {
+    id: contactId,
+    name,
+    email,
+    phone,
+  };
 
-    res.status(200).json({ user: newUser });
-  } catch (error) {
-    console.log(error);
+  const validation = contactValidator(updatedContact);
+
+  if (validation.error) {
+    return next(new AppError(400, "missing fields"));
   }
-};
 
-const updateContact = async (req, res) => {
-  try {
-    const { name, email, phone } = req.body;
-    const { contactId } = req.params;
+  const idx = contacts.findIndex((contact) => contact.id === contactId);
 
-    const contacts = JSON.parse(
-      await fsPromises.readFile(contactsPath, "utf-8")
-    );
+  contacts[idx] = updatedContact;
 
-    const newList = contacts.filter((contact) => contact.id !== contactId);
+  await fsPromises.writeFile(contactsPath, JSON.stringify(contacts));
 
-    let contactToUpdate = contacts.find((contact) => contact.id === contactId);
-
-    // contactToUpdate.name = name;
-    // contactToUpdate.email = email;
-    // contactToUpdate.phone = phone;
-
-    contactToUpdate = {
-      id: contactId,
-      name,
-      email,
-      phone,
-    };
-
-    const updatedContacts = JSON.stringify([...newList, contactToUpdate]);
-
-    await fsPromises.writeFile(contactsPath, updatedContacts);
-
-    res.status(200).json({ user: contactToUpdate });
-  } catch (error) {
-    console.log(error);
-  }
-};
+  res.status(200).json(contacts[idx]);
+});
 
 module.exports = {
   listContacts,
