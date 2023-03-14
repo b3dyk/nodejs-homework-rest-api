@@ -1,105 +1,89 @@
 const fsPromises = require("fs").promises;
-const uuid = require("uuid").v4;
 
-const {
-  catchAsync,
-  contactsPath,
-  contactValidator,
-  AppError,
-} = require("../helpers");
+const { contactsPath } = require("../helpers");
 
-const listContacts = async (req, res) => {
-  const contacts = JSON.parse(await fsPromises.readFile(contactsPath, "utf-8"));
+const listContacts = async () => {
+  try {
+    const contacts = JSON.parse(
+      await fsPromises.readFile(contactsPath, "utf-8")
+    );
 
-  res.status(200).json(contacts);
+    return contacts;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
-const getById = (req, res) => {
-  const { contact } = req;
+const getContactById = async (contactId) => {
+  try {
+    const contacts = JSON.parse(
+      await fsPromises.readFile(contactsPath, "utf-8")
+    );
+    const contact = contacts.find(({ id }) => id === contactId);
 
-  res.status(200).json(contact);
+    return contact;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
-const removeContact = catchAsync(async (req, res) => {
-  const {
-    contacts,
-    params: { contactId },
-  } = req;
-
-  const updatedList = JSON.stringify(
-    contacts.filter((contact) => contact.id !== contactId)
-  );
-
-  await fsPromises.writeFile(contactsPath, updatedList);
-
-  res.status(200).json({ message: "contact deleted" });
-});
-
-const addContact = catchAsync(async (req, res, next) => {
-  const { name, email, phone } = req.body;
-
-  const newUser = {
-    id: uuid(),
-    name,
-    email,
-    phone,
-  };
-
-  const validation = contactValidator(newUser);
-
-  if (validation.error) {
-    return next(
-      new AppError(
-        400,
-        `invalid ${validation.error.details[0].context?.key} field`
-      )
+const removeContact = async (contactId) => {
+  try {
+    const contacts = JSON.parse(
+      await fsPromises.readFile(contactsPath, "utf-8")
     );
-  }
 
-  const contacts = JSON.parse(await fsPromises.readFile(contactsPath, "utf-8"));
-  const updatedContacts = JSON.stringify([...contacts, newUser]);
-
-  await fsPromises.writeFile(contactsPath, updatedContacts);
-
-  res.status(201).json(newUser);
-});
-
-const updateContact = catchAsync(async (req, res, next) => {
-  console.log(req.body);
-  const { name, email, phone } = req.body;
-  const { contactId } = req.params;
-  const { contacts } = req;
-
-  const updatedContact = {
-    id: contactId,
-    name,
-    email,
-    phone,
-  };
-
-  const validation = contactValidator(updatedContact);
-
-  if (validation.error) {
-    return next(
-      new AppError(
-        400,
-        `invalid ${validation.error.details[0].context?.key} field`
-      )
+    const updatedList = JSON.stringify(
+      contacts.filter(({ id }) => id !== contactId)
     );
+
+    await fsPromises.writeFile(contactsPath, updatedList);
+  } catch (error) {
+    console.log(error);
   }
+};
 
-  const idx = contacts.findIndex((contact) => contact.id === contactId);
+const addContact = async (body) => {
+  try {
+    const newUser = body;
 
-  contacts[idx] = updatedContact;
+    const contacts = JSON.parse(
+      await fsPromises.readFile(contactsPath, "utf-8")
+    );
+    const updatedContacts = JSON.stringify([...contacts, newUser]);
 
-  await fsPromises.writeFile(contactsPath, JSON.stringify(contacts));
+    await fsPromises.writeFile(contactsPath, updatedContacts);
 
-  res.status(200).json(contacts[idx]);
-});
+    return newUser;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const updateContact = async (contactId, body) => {
+  try {
+    const updatedContact = {
+      id: contactId,
+      ...body,
+    };
+    const contacts = JSON.parse(
+      await fsPromises.readFile(contactsPath, "utf-8")
+    );
+    const idx = contacts.findIndex(({ id }) => id === contactId);
+
+    contacts[idx] = updatedContact;
+
+    await fsPromises.writeFile(contactsPath, JSON.stringify(contacts));
+
+    return contacts[idx];
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 module.exports = {
   listContacts,
-  getById,
+  getContactById,
   removeContact,
   addContact,
   updateContact,
