@@ -8,6 +8,9 @@ const {
 } = require("../helpers");
 
 exports.checkBody = (req, res, next) => {
+  if (!Object.keys(req.body).length)
+    return next(new AppError(400, `missing fields`));
+
   const { error, value } = contactValidator(req.body);
 
   if (error)
