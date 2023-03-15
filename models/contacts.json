@@ -6,30 +6,6 @@
     "phone": "(992) 914-3792"
   },
   {
-    "id": "2",
-    "name": "Chaim Lewis",
-    "email": "dui.in@egetlacus.ca",
-    "phone": "(294) 840-6685"
-  },
-  {
-    "id": "3",
-    "name": "Kennedy Lane",
-    "email": "mattis.Cras@nonenimMauris.net",
-    "phone": "(542) 451-7038"
-  },
-  {
-    "id": "4",
-    "name": "Wylie Pope",
-    "email": "est@utquamvel.net",
-    "phone": "(692) 802-2949"
-  },
-  {
-    "id": "5",
-    "name": "Cyrus Jackson",
-    "email": "nibh@semsempererat.com",
-    "phone": "(501) 472-5218"
-  },
-  {
     "id": "6",
     "name": "Abbot Franks",
     "email": "scelerisque@magnis.org",
@@ -42,12 +18,6 @@
     "phone": "(715) 598-5792"
   },
   {
-    "id": "8",
-    "name": "Simon Morton",
-    "email": "dui.Fusce.diam@Donec.com",
-    "phone": "(233) 738-2360"
-  },
-  {
     "id": "9",
     "name": "Thomas Lucas",
     "email": "nec@Nulla.com",
@@ -58,5 +28,29 @@
     "name": "Alec Howard",
     "email": "Donec.elementum@scelerisquescelerisquedui.net",
     "phone": "(748) 206-2688"
+  },
+  {
+    "id": "0968a1ab-6fd2-40cf-b4f1-144fefd22b1d",
+    "name": "Apple",
+    "email": "apple@mail.com",
+    "phone": "122-22-22"
+  },
+  {
+    "id": "d52ae58b-2d86-4844-ad61-42dfe03ac549",
+    "name": "Mango",
+    "email": "mango@mail.com",
+    "phone": "322-22-22"
+  },
+  {
+    "id": "2b45d31a-d756-4ca5-8817-6e799f2d4002",
+    "name": "Papaya",
+    "email": "papaya@mail.com",
+    "phone": "233-33-33"
+  },
+  {
+    "id": "05a8cbe7-7dba-4345-8625-a16421b2572c",
+    "name": "Cherry",
+    "email": "cherry@mail.com",
+    "phone": "155-55-55"
   }
 ]
