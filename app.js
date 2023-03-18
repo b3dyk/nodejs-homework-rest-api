@@ -2,6 +2,7 @@ const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const mongoose = require("mongoose");
 
 dotenv.config({ path: "./.env" });
 
@@ -10,6 +11,20 @@ const contactsRouter = require("./routes/api/contacts");
 const app = express();
 
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
+
+const connectToDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URL);
+
+    console.log("Database connection successful");
+  } catch (error) {
+    console.log(error.message);
+
+    process.exit(1);
+  }
+};
+
+connectToDB();
 
 app.use(logger(formatsLogger));
 app.use(cors());
