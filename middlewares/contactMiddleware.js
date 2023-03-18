@@ -1,13 +1,8 @@
-const fsPromises = require("fs").promises;
+const { Types } = require("mongoose");
+const { AppError, catchAsync, contactValidator } = require("../helpers");
+const Contact = require("../models/contactModel");
 
-const {
-  AppError,
-  catchAsync,
-  contactValidator,
-  contactsPath,
-} = require("../helpers");
-
-exports.checkBody = (req, res, next) => {
+exports.checkBody = catchAsync(async (req, res, next) => {
   if (!Object.keys(req.body).length)
     return next(new AppError(400, `missing fields`));
 
@@ -21,18 +16,39 @@ exports.checkBody = (req, res, next) => {
       )
     );
 
+  const nameExists = await Contact.exists({ name: value.name });
+  const emailExists = await Contact.exists({ email: value.email });
+
+  if (nameExists || emailExists)
+    return next(
+      new AppError(
+        409,
+        `Contact with this ${nameExists ? "name" : "email"} already exists`
+      )
+    );
+
   req.body = value;
 
   next();
-};
+});
 
 exports.checkContact = catchAsync(async (req, res, next) => {
   const { contactId } = req.params;
 
-  const contacts = JSON.parse(await fsPromises.readFile(contactsPath, "utf-8"));
-  const searchedContact = contacts.find(({ id }) => id === contactId);
+  const isIdValid = await Types.ObjectId.isValid(contactId);
 
-  if (!searchedContact) return next(new AppError(404, "Not found"));
+  if (!isIdValid) return next(new AppError(404, "Not found"));
+
+  const contactExists = Contact.exists({ _id: contactId });
+
+  if (!contactExists) return next(new AppError(404, "Not found"));
 
   next();
 });
+
+exports.checkFavorite = (req, res, next) => {
+  if (!Object.keys(req.body).includes("favorite"))
+    return next(new AppError(400, `missing field favorite`));
+
+  next();
+};

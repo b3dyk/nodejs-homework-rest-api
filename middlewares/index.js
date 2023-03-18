@@ -1,6 +1,11 @@
-const { checkContact, checkBody } = require("./contactMiddleware");
+const {
+  checkContact,
+  checkBody,
+  checkFavorite,
+} = require("./contactMiddleware");
 
 module.exports = {
   checkContact,
   checkBody,
+  checkFavorite,
 };
