@@ -1,6 +1,11 @@
 const { Router } = require("express");
 
-const { checkContact, checkBody, checkFavorite } = require("../../middlewares");
+const {
+  checkContact,
+  checkBody,
+  checkFavorite,
+  checkBodyForUpdate,
+} = require("../../middlewares");
 const {
   getContactsList,
   getById,
@@ -18,7 +23,7 @@ router
   .route("/:contactId")
   .get(checkContact, getById)
   .delete(checkContact, deleteContact)
-  .put(checkBody, checkContact, putContact);
+  .put(checkBodyForUpdate, checkContact, putContact);
 
 router
   .route("/:contactId/favorite")

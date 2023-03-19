@@ -9,12 +9,14 @@ const contactSchema = new Schema({
   },
   email: {
     type: String,
+    required: [true, "Set email for contact"],
     unique: [true, "Contact with this email already exists"],
     trim: true,
     lowercase: true,
   },
   phone: {
     type: String,
+    required: [true, "Set phone for contact"],
     unique: [true, "Contact with this phone already exists"],
   },
   favorite: {

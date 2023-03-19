@@ -8,25 +8,48 @@ exports.checkBody = catchAsync(async (req, res, next) => {
 
   const { error, value } = contactValidator(req.body);
 
-  const missingFields = error.details.map((item) => item.context.key);
-  const fields =
-    missingFields.length === 1
-      ? missingFields.join("")
-      : missingFields.join(" & ");
-
-  if (error)
+  if (error) {
+    const missingFields = error.details?.map((item) => item.context.key);
+    const fields =
+      missingFields.length === 1
+        ? missingFields.join("")
+        : missingFields.join(" & ");
     return next(new AppError(400, `missing required ${fields} field(s)`));
+  }
 
   const nameExists = await Contact.exists({ name: value.name });
   const emailExists = await Contact.exists({ email: value.email });
+  const phoneExists = await Contact.exists({ phone: value.phone });
 
-  if (nameExists || emailExists)
+  if (nameExists || emailExists || phoneExists)
     return next(
       new AppError(
         409,
-        `Contact with this ${nameExists ? "name" : "email"} already exists`
+        `Contact with this ${
+          nameExists ? "name" : emailExists ? "email" : "phone"
+        } already exists`
       )
     );
+
+  req.body = value;
+
+  next();
+});
+
+exports.checkBodyForUpdate = catchAsync(async (req, res, next) => {
+  if (!Object.keys(req.body).length)
+    return next(new AppError(400, `missing fields`));
+
+  const { error, value } = contactValidator(req.body);
+
+  if (error) {
+    const missingFields = error.details?.map((item) => item.context.key);
+    const fields =
+      missingFields.length === 1
+        ? missingFields.join("")
+        : missingFields.join(" & ");
+    return next(new AppError(400, `missing required ${fields} field(s)`));
+  }
 
   req.body = value;
 
