@@ -10,7 +10,7 @@ const getContactsList = catchAsync(async (req, res) => {
 const getById = catchAsync(async (req, res) => {
   const { contactId } = req.params;
 
-  const contact = await Contact.findById(contactId);
+  const contact = await Contact.findById(contactId).select("-__v");
 
   res.status(200).json(contact);
 });
@@ -35,7 +35,7 @@ const putContact = catchAsync(async (req, res) => {
 
   const updatedContact = await Contact.findByIdAndUpdate(contactId, body, {
     new: true,
-  });
+  }).select("-__v");
 
   res.status(200).json(updatedContact);
 });
@@ -48,7 +48,7 @@ const updateStatusContact = catchAsync(async (req, res) => {
 
   const updatedContact = await Contact.findByIdAndUpdate(contactId, favorite, {
     new: true,
-  });
+  }).select("-__v");
 
   res.status(200).json(updatedContact);
 });
