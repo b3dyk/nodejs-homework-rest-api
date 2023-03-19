@@ -4,7 +4,7 @@ const {
   checkContact,
   checkBody,
   checkFavorite,
-  checkBodyForUpdate,
+  checkExistence,
 } = require("../../middlewares");
 const {
   getContactsList,
@@ -17,13 +17,16 @@ const {
 
 const router = Router();
 
-router.route("/").get(getContactsList).post(checkBody, createContact);
+router
+  .route("/")
+  .get(getContactsList)
+  .post(checkBody, checkExistence, createContact);
 
 router
   .route("/:contactId")
   .get(checkContact, getById)
   .delete(checkContact, deleteContact)
-  .put(checkBodyForUpdate, checkContact, putContact);
+  .put(checkBody, checkContact, putContact);
 
 router
   .route("/:contactId/favorite")

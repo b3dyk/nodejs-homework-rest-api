@@ -17,9 +17,17 @@ exports.checkBody = catchAsync(async (req, res, next) => {
     return next(new AppError(400, `missing required ${fields} field(s)`));
   }
 
-  const nameExists = await Contact.exists({ name: value.name });
-  const emailExists = await Contact.exists({ email: value.email });
-  const phoneExists = await Contact.exists({ phone: value.phone });
+  req.body = value;
+
+  next();
+});
+
+exports.checkExistence = catchAsync(async (req, res, next) => {
+  const { name, email, phone } = req.body;
+
+  const nameExists = await Contact.exists({ name });
+  const emailExists = await Contact.exists({ email });
+  const phoneExists = await Contact.exists({ phone });
 
   if (nameExists || emailExists || phoneExists)
     return next(
@@ -30,28 +38,6 @@ exports.checkBody = catchAsync(async (req, res, next) => {
         } already exists`
       )
     );
-
-  req.body = value;
-
-  next();
-});
-
-exports.checkBodyForUpdate = catchAsync(async (req, res, next) => {
-  if (!Object.keys(req.body).length)
-    return next(new AppError(400, `missing fields`));
-
-  const { error, value } = contactValidator(req.body);
-
-  if (error) {
-    const missingFields = error.details?.map((item) => item.context.key);
-    const fields =
-      missingFields.length === 1
-        ? missingFields.join("")
-        : missingFields.join(" & ");
-    return next(new AppError(400, `missing required ${fields} field(s)`));
-  }
-
-  req.body = value;
 
   next();
 });

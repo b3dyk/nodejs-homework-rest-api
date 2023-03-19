@@ -2,12 +2,12 @@ const {
   checkContact,
   checkBody,
   checkFavorite,
-  checkBodyForUpdate,
+  checkExistence,
 } = require("./contactMiddleware");
 
 module.exports = {
   checkContact,
   checkBody,
   checkFavorite,
-  checkBodyForUpdate,
+  checkExistence,
 };
