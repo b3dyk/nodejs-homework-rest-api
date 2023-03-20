@@ -1,17 +1,8 @@
-const uuid = require("uuid").v4;
-
 const { catchAsync } = require("../helpers");
-
-const {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
-} = require("../models/contacts");
+const Contact = require("../models/contactModel");
 
 const getContactsList = catchAsync(async (req, res) => {
-  const contacts = await listContacts();
+  const contacts = await Contact.find().select("-__v");
 
   res.status(200).json(contacts);
 });
@@ -19,7 +10,7 @@ const getContactsList = catchAsync(async (req, res) => {
 const getById = catchAsync(async (req, res) => {
   const { contactId } = req.params;
 
-  const contact = await getContactById(contactId);
+  const contact = await Contact.findById(contactId).select("-__v");
 
   res.status(200).json(contact);
 });
@@ -27,22 +18,13 @@ const getById = catchAsync(async (req, res) => {
 const deleteContact = catchAsync(async (req, res) => {
   const { contactId } = req.params;
 
-  await removeContact(contactId);
+  await Contact.findByIdAndDelete(contactId);
 
   res.status(200).json({ message: "contact deleted" });
 });
 
 const createContact = catchAsync(async (req, res) => {
-  const { name, email, phone } = req.body;
-
-  const newContact = {
-    id: uuid(),
-    name,
-    email,
-    phone,
-  };
-
-  await addContact(newContact);
+  const newContact = await Contact.create(req.body);
 
   res.status(201).json(newContact);
 });
@@ -51,9 +33,22 @@ const putContact = catchAsync(async (req, res) => {
   const { contactId } = req.params;
   const { body } = req;
 
-  await updateContact(contactId, body);
+  const updatedContact = await Contact.findByIdAndUpdate(contactId, body, {
+    new: true,
+  }).select("-__v");
 
-  const updatedContact = await getContactById(contactId);
+  res.status(200).json(updatedContact);
+});
+
+const updateStatusContact = catchAsync(async (req, res) => {
+  const { contactId } = req.params;
+  const favorite = req.body;
+
+  console.log(contactId, favorite);
+
+  const updatedContact = await Contact.findByIdAndUpdate(contactId, favorite, {
+    new: true,
+  }).select("-__v");
 
   res.status(200).json(updatedContact);
 });
@@ -64,4 +59,5 @@ module.exports = {
   createContact,
   deleteContact,
   putContact,
+  updateStatusContact,
 };
