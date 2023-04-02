@@ -9,7 +9,7 @@ const updateStatusContact = catchAsync(async (req, res) => {
 
   const updatedContact = await Contact.findByIdAndUpdate(contactId, favorite, {
     new: true,
-  }).select("-__v");
+  });
 
   res.status(200).json(updatedContact);
 });

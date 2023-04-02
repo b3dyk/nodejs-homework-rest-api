@@ -7,7 +7,7 @@ const putContact = catchAsync(async (req, res) => {
 
   const updatedContact = await Contact.findByIdAndUpdate(contactId, body, {
     new: true,
-  }).select("-__v");
+  });
 
   res.status(200).json(updatedContact);
 });
