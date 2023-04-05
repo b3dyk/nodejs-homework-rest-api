@@ -6,6 +6,7 @@ const {
 } = require("./contactMiddleware");
 const { checkUser } = require("./userMiddleware");
 const auth = require("./auth");
+const uploadAvatar = require("./uploadAvatar");
 
 module.exports = {
   checkContact,
@@ -14,4 +15,5 @@ module.exports = {
   checkExistence,
   checkUser,
   auth,
+  uploadAvatar,
 };
