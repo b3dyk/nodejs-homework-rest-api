@@ -12,12 +12,17 @@ const login = catchAsync(async (req, res, next) => {
 
   const user = await User.findOne({ email });
 
-  if (!user) return next(new AppError(401, "Email or password is wrong"));
+  if (!user || !user.verify)
+    return next(
+      new AppError(401, "Email or password is wrong or not verified")
+    );
 
   const passCompare = await user.checkPassword(password, user.password);
 
   if (!passCompare)
-    return next(new AppError(401, "Email or password is wrong"));
+    return next(
+      new AppError(401, "Email or password is wrong or not verified")
+    );
 
   const token = signToken(user._id);
 
